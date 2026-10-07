@@ -7,7 +7,18 @@ services:
       - "127.0.0.1:8000:8000"
     volumes:
       - .:/app
+      - composer_cache:/tmp/composer
     working_dir: /app
     environment:
       COMPOSER_HOME: /tmp/composer
     command: php artisan serve --host=0.0.0.0 --port=8000
+  frontend:
+    image: node:24-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20
+    profiles: [tools]
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: npm run build
+
+volumes:
+  composer_cache:

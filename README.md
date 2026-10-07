@@ -22,6 +22,8 @@ The admin creation command asks for an email and a hidden password of at least 1
 
 ### Docker and Windows
 
+For a beginner-friendly, Docker-only Windows workflow, follow [Windows setup](docs/windows-setup.md). Node/npm can run in the included `frontend` tool container; no separate host runtime is required.
+
 ```sh
 docker compose build
 docker compose run --rm app composer install
@@ -33,13 +35,13 @@ Copy `.env.example` to `.env` using Explorer or PowerShell `Copy-Item .env.examp
 docker compose run --rm app php artisan key:generate
 docker compose run --rm app php artisan migrate
 docker compose run --rm app php artisan db:seed
-npm ci
-npm run build
+docker compose run --rm frontend npm ci
+docker compose run --rm frontend npm run build
 docker compose run --rm app php artisan pathi:admin
 docker compose up
 ```
 
-On Windows, Docker Desktop with WSL2 is recommended. Node/npm run on the host; PHP/Composer run in the container. The server binds only to loopback. `npm run dev` enables Vite while editing templates; `npm run build` generates production assets. Everyday dashboard publishing requires neither command.
+On Windows, Docker Desktop with WSL2 is recommended. Node/npm can run in the frontend container; PHP/Composer run in the app container. The server binds only to loopback. `npm run dev` enables Vite while editing templates; `npm run build` generates production assets. Everyday dashboard publishing requires neither command.
 
 ### Database and storage
 
