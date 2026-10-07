@@ -1,0 +1,46 @@
+name: Publish woodland update
+on:
+  workflow_dispatch:
+  push:
+    branches: [work]
+    paths:
+      - '.github/workflows/woodland-release.yml'
+      - 'scripts/package-woodland-release.py'
+permissions:
+  contents: write
+concurrency:
+  group: woodland-redesign-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out complete history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Package and audit the exact redesign
+        run: python3 scripts/package-woodland-release.py
+      - name: Publish ZIP, guide and checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag=woodland-redesign-8a9912e
+          cat > /tmp/woodland-release-notes.md <<'NOTES'
+          Update an existing Life of Pathi ZIP installation to the woodland redesign at commit 8a9912e.
+
+          Download Life-of-Pathi-woodland-update.zip and follow windows-update-woodland.md. The ZIP includes Apply-Woodland-Update.ps1, checksummed changed source files and the guide. It excludes secrets, environment files, databases, private uploads and installed dependencies.
+
+          Stop Docker and back up your local data first. The updater preserves your existing environment, database, uploads and administrator account. Do not reset or reseed the database, or generate another application key.
+          NOTES
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" release-artifacts/* --clobber
+          else
+            gh release create "$tag" release-artifacts/* \
+              --target 8a9912e0d6be1378a7fff4387c60b6a8e8a57fbe \
+              --title "Life of Pathi — woodland redesign update" \
+              --notes-file /tmp/woodland-release-notes.md
+          fi
