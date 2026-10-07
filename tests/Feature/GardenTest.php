@@ -204,4 +204,34 @@ class GardenTest extends TestCase
     {
         $this->get('/')->assertSee('aria-controls=', false)->assertSee('type="button"', false)->assertSee('Browse everything as a list')->assertSee(route('branch', 'crochet') === null ? 'impossible' : 'Making &amp; Practice', false);
     }
+
+    public function test_woodland_tree_groups_new_branches_and_keeps_nested_paths_accessible(): void
+    {
+        for ($i = 0; $i < 9; $i++) {
+            Branch::create(['name' => 'New woodland branch '.$i, 'slug' => 'woodland-'.$i, 'sort_order' => 100 + $i, 'activity' => 'dormant']);
+        }
+        $this->get('/')->assertOk()->assertSee('data-tree-page="1"', false)
+            ->assertSee('New woodland branch 8')->assertSee('is-dormant', false)
+            ->assertSee(route('branch', 'crochet'))->assertSee('Explore without the illustration');
+    }
+
+    public function test_tree_rename_preserves_marker_position_and_published_connections(): void
+    {
+        $branch = Branch::where('slug', 'making-practice')->firstOrFail();
+        $before = $this->get('/')->getContent();
+        $branch->update(['name' => 'A renamed creative practice']);
+        $after = $this->get('/')->assertSee('A renamed creative practice')->assertSee('An everyday crochet bag')->getContent();
+        $pattern = '/style="([^"]+)" data-tree-select="'.$branch->id.'"/';
+        preg_match($pattern, $before, $beforeMatch);
+        preg_match($pattern, $after, $afterMatch);
+        $this->assertNotEmpty($beforeMatch);
+        $this->assertSame($beforeMatch[1], $afterMatch[1]);
+    }
+
+    public function test_explore_defaults_to_tree_with_an_explicit_list_alternative(): void
+    {
+        $this->get('/explore')->assertSee('data-woodland-scene', false)->assertSee('view=list');
+        $this->get('/explore?view=list')->assertDontSee('data-woodland-scene', false)->assertSee('An everyday crochet bag');
+        $this->get('/work')->assertDontSee('data-woodland-scene', false);
+    }
 }

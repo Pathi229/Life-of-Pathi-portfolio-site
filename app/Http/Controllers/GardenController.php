@@ -16,7 +16,7 @@ class GardenController extends Controller
 {
     public function home()
     {
-        return view('garden.home', ['branches' => Branch::where('archived', false)->orderBy('sort_order')->get(), 'selected' => Entry::discoverable()->where('type', 'project')->where('portfolio', true)->orderBy('sort_order')->limit(3)->get(), 'growing' => Entry::discoverable()->where('type', 'project')->where('maturity', 'growing')->limit(3)->get(), 'recent' => Entry::discoverable()->latest('meaningful_updated_at')->limit(4)->get()]);
+        return view('garden.home', ['treeEntries' => Entry::discoverable()->with(['branches', 'primaryBranch'])->orderByDesc('featured')->orderBy('sort_order')->get(), 'branches' => Branch::where('archived', false)->with('channels')->orderBy('sort_order')->orderBy('id')->get(), 'selected' => Entry::discoverable()->where('type', 'project')->where('portfolio', true)->orderBy('sort_order')->limit(3)->get(), 'growing' => Entry::discoverable()->where('type', 'project')->where('maturity', 'growing')->limit(3)->get(), 'recent' => Entry::discoverable()->latest('meaningful_updated_at')->limit(4)->get()]);
     }
 
     public function explore(Request $r)
@@ -44,7 +44,7 @@ class GardenController extends Controller
             $q->where('type', 'article');
         }
 
-        return view('garden.explore', ['treeEntries' => (clone $q)->limit(200)->get(), 'entries' => $q->orderBy('sort_order')->latest('meaningful_updated_at')->paginate(12)->withQueryString(), 'branches' => Branch::where('archived', false)->orderBy('sort_order')->get(), 'channels' => Channel::all(), 'title' => $r->routeIs('work') ? 'Selected work' : ($r->routeIs('blogs') ? 'Blogs & Guides' : 'Explore the garden')]);
+        return view('garden.explore', ['treeEntries' => (clone $q)->limit(200)->get(), 'entries' => $q->orderBy('sort_order')->latest('meaningful_updated_at')->paginate(12)->withQueryString(), 'branches' => Branch::where('archived', false)->with('channels')->orderBy('sort_order')->orderBy('id')->get(), 'channels' => Channel::all(), 'title' => $r->routeIs('work') ? 'Selected work' : ($r->routeIs('blogs') ? 'Blogs & Guides' : 'Explore the garden')]);
     }
 
     public function branch(string $slug)

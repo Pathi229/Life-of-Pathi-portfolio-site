@@ -64,3 +64,9 @@ Tests cover public routes, relationships, reading order, admin access, previews,
 - Install `composer install --no-dev --optimize-autoloader`, run `npm ci && npm run build`, `php artisan filament:assets`, `php artisan migrate --force` and `php artisan optimize` during release preparation. Do not run the development seeder on a live portfolio unless demonstration records are intended.
 - Configure scheduled backups for the database and private files. Preserve APP_KEY in your secret manager. Do not commit `.env`, private storage, database files or administrator credentials.
 - No queue worker, email service, external accounts or platform synchronisation is required. Contact uses editable email/social links; there is no enquiry form claiming mail delivery.
+
+## Woodland redesign and existing Windows installations
+
+The public site now uses an original illustrated tree with dashboard-managed branch/project markers, accessible previews and browsing alternatives. Scenery responds gently to scrolling and pointer movement; reduced-motion users receive a static scene. Reading pages keep their scenery still.
+
+If your Windows installation came from a ZIP, follow [Apply the woodland update](docs/windows-update-woodland.md). The update preserves your existing `.env`, database, uploads and admin account; it does not require initial seeding or a new key. See [Redesign verification](docs/woodland-verification.md) for checks and limitations.
